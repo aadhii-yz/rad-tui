@@ -1,0 +1,9 @@
+# Temporary files
+/temp
+
+# Sessionizer
+tmux.sh
+
+# Executables
+*.out
+game
