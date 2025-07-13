@@ -1,3 +1,4 @@
+// Includes :
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
+// Defines :
 #ifdef RUN_TESTS
 
 #define MAX_X 5
@@ -18,6 +20,10 @@
 
 #endif
 
+#define SPEED 0.1
+
+
+// Game State :
 typedef struct {
   int key;
   int pos_x;
@@ -30,16 +36,20 @@ typedef struct {
   char screen[MAX_Y][MAX_X];
 } GameState;
 
+// To save the terminal state
 static struct termios old_termios, new_termios;
 
+// Resets the terminal
 void reset_terminal() {
   printf("\e[m");
   printf("\e[?25h");
   printf("\e[%d;%dH\n", MAX_Y + 3, MAX_X);
   fflush(stdout);
-  tcsetattr(STDIN_FILENO, TCSANOW, &old_termios);
+  tcsetattr(STDIN_FILENO, TCSANOW, &old_termios); // resets the old terminal attributes
 }
 
+// Configure the terminal for game
+// Modify the terminal attributes
 void configure_terminal() {
   tcgetattr(STDIN_FILENO, &old_termios);
   new_termios = old_termios;
@@ -54,10 +64,13 @@ void configure_terminal() {
   atexit(reset_terminal);
 }
 
+// Game loop's control variable
 static int exit_loop;
 
+// Handling interrupt and terminate game loop
 void signal_handler(__attribute__((unused)) int signum) { exit_loop = 1; }
 
+// Handle key press
 int read_key(char *buf, int k) {
   if (buf[k] == '\033' && buf[k + 1] == '[') {
     switch (buf[k + 2]) {
@@ -74,6 +87,7 @@ int read_key(char *buf, int k) {
   return 0;
 }
 
+// Read key press
 void read_input(GameState *state) {
   char buf[4096];
   int n = read(STDIN_FILENO, buf, sizeof(buf));
@@ -87,6 +101,7 @@ void read_input(GameState *state) {
   state->key = final_key;
 }
 
+// Update game state based on key perss
 void handle_player(GameState *state) {
   switch (state->key) {
   case 1:
@@ -182,6 +197,7 @@ void handle_player(GameState *state) {
   }
 }
 
+// Checks if the rock or the gems are falling, then updates state.
 void handle_rocks_gems(GameState *state, int x, int y) {
   int gem = state->screen[y][x] == '$';
   if (state->screen[y + 1][x] == ' ') {
@@ -210,6 +226,7 @@ void handle_rocks_gems(GameState *state, int x, int y) {
   }
 }
 
+// Update the next state of the falling rocks and gems.
 void handle_falling_rocks_gems(GameState *state, int x, int y) {
   int gem = state->screen[y][x] == 'S';
   if (state->screen[y + 1][x] == ' ') {
@@ -254,6 +271,7 @@ void handle_falling_rocks_gems(GameState *state, int x, int y) {
   }
 }
 
+// Handle all elements based on the current state
 void update_all_elements(GameState *state) {
   for (int j = MAX_Y - 1; j != 0; --j) {
     for (int i = MAX_X - 2; i != 0; --i) {
@@ -279,6 +297,7 @@ void update_all_elements(GameState *state) {
   }
 }
 
+// Updates all elements
 void update(GameState *state) {
   memcpy(state->screen, state->old_screen, sizeof(state->screen));
   handle_player(state);
@@ -286,6 +305,7 @@ void update(GameState *state) {
   ++state->count;
 }
 
+// Renders the screen based on the current state
 void render(GameState *state) {
   for (int j = 0; j < MAX_Y; ++j) {
     for (int i = 0; i < MAX_X; ++i) {
@@ -335,6 +355,7 @@ void render(GameState *state) {
   fflush(stdout);
 }
 
+// Get the player co-ordinates from the Current state
 void find_player_position(GameState *state) {
   for (int j = 0; j < MAX_Y; ++j) {
     for (int i = 0; i < MAX_X; ++i) {
@@ -347,6 +368,7 @@ void find_player_position(GameState *state) {
   }
 }
 
+// Loads the level file into the game and reads in into the game state
 void load_level(GameState *state, char* level) {
   FILE *f = fopen(level, "r");
   if (!f) {
@@ -364,6 +386,7 @@ void load_level(GameState *state, char* level) {
   fclose(f);
 }
 
+// Prints the end message with result
 void print_end_message(GameState *state) {
   printf("\e[%d;%dH", MAX_Y + 2, 1);
   if (state->dead) {
@@ -374,6 +397,7 @@ void print_end_message(GameState *state) {
   }
 }
 
+// Gets the level file name from the command line args
 char* get_level(int argc, char* argv[]) {
   if (argc != 2) {
     return "";
@@ -382,7 +406,6 @@ char* get_level(int argc, char* argv[]) {
   return argv[1];
 }
 
-#define SPEED 0.1
 
 #ifndef RUN_TESTS
 
@@ -435,6 +458,9 @@ int main(int argc, char* argv[]) {
 
 #endif
 
+// Tests
+// TODO: Move to seperate test file
+// TODO: Add more tests
 #ifdef RUN_TESTS
 
 int test_player_lives() {
