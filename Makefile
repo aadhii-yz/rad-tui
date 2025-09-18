@@ -3,8 +3,11 @@ CFLAGS=-Wall -Wextra -O2
 
 .PHONY: run clean
 
-game: game.c
-	$(CC) game.c -o game $(CFLAGS)
+game: main.c game.c game.h
+	$(CC) main.c -o game $(CFLAGS)
+
+test: test.c game.c game.h
+	$(CC) test.c -o test $(CFLAGS) && ./test
 
 run: game
 	./game levels/level_1.txt
