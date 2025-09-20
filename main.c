@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <time.h>
 #include "game.c"
 
@@ -11,12 +12,16 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  tb_init();
+  if (tb_init() != TB_OK) {
+    fprintf(stderr, "Termbox initalization failed\n");
+    return 1; 
+  }
 
   struct timespec req = {};
   struct timespec rem = {};
 
   GameState state = {.pos_x = 5, .pos_y = 5};
+  struct tb_event ev;
 
   printf("\e[2J");
   load_level(&state, level);
@@ -24,6 +29,13 @@ int main(int argc, char* argv[]) {
   clock_t start, end;
 
   while (!state.end) {
+    tb_poll_event(&ev);
+    if (ev.type == TB_EVENT_KEY) {
+      if (ev.key == TB_KEY_CTRL_Q) {
+        state.end = true;
+        continue;
+      }
+    }
     start = clock();
 
     read_input(&state);
