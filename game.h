@@ -14,8 +14,6 @@
 
 #endif
 
-#define SPEED 0.1
-
 // Game State :
 typedef struct {
   int key;
@@ -25,7 +23,6 @@ typedef struct {
   int gems_collected;
   int dead;
   int won;
-  bool end;
   char old_screen[MAX_Y][MAX_X];
   char screen[MAX_Y][MAX_X];
 } GameState;
