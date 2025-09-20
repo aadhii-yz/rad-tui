@@ -1,45 +1,16 @@
 // Includes :
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 
+#define TB_OPT_ATTR_W 32
 #define TB_IMPL
 #include "termbox2.h"
 
 #include "game.h"
-
-// // Handle key press
-// int read_key(char *buf, int k) {
-//   if (buf[k] == '\033' && buf[k + 1] == '[') {
-//     switch (buf[k + 2]) {
-//     case 'A':
-//       return 1; // UP
-//     case 'B':
-//       return 2; // DOWN
-//     case 'C':
-//       return 3; // RIGHT
-//     case 'D':
-//       return 4; // LEFT
-//     }
-//   }
-//   return 0;
-// }
-
-// // Read key press
-// void read_input(GameState *state) {
-//   char buf[4096];
-//   int n = read(STDIN_FILENO, buf, sizeof(buf));
-//   int final_key = 0;
-//   for (int k = 0; k <= n - 3; k += 3) {
-//     int key = read_key(buf, k);
-//     if (key == 0)
-//       continue;
-//     final_key = key;
-//   }
-//   state->key = final_key;
-// }
 
 // Handle keyboard inputs
 void handle_input(GameState *state, struct tb_event *ev) {
@@ -269,52 +240,49 @@ void update(GameState *state) {
 
 // Renders the screen based on the current state
 void render(GameState *state) {
+  tb_set_clear_attrs(TB_DEFAULT, 0x0a0a28);  
+  tb_clear();
+  
   for (int j = 0; j < MAX_Y; ++j) {
     for (int i = 0; i < MAX_X; ++i) {
       char c = state->screen[j][i];
-      if (c == '$' || c == 'S') {
-        int l = ((state->count + 5 * j + 7 * i) % 16) / 8;
-        printf("\e[%d;%dH", j + 1, i + 1);
-        if (l == 0) {
-          printf("\e[48;2;10;10;40m\e[38;2;153;51;255m$");
-        } else {
-          printf("\e[48;2;10;10;40m\e[38;12;33;61;255m$");
-        }
+      uint32_t ch = c;
+      uint32_t fg = 0;
+      uint32_t bg = 0x0a0a28;
+      
+      switch (c) {
+      case 'X':
+        ch = ' ';
+        bg = 0x333351;
+        break;
+      case '.':
+        ch = ' ';
+        bg = 0x504c3c;
+        break;
+      case ' ':
+        break;
+      case 'o':
+      case 'O':
+        fg = 0xcac6c2;
+        break;
+      case '@':
+        fg = 0xeb3333;
+        break;
+      case 'E':
+        fg = 0xfbfb0f;
+        break;
+      case '$':
+      case 'S':
+        ch = '$';
+        fg = 0x213dff;
+        break;
+      default:
         continue;
       }
-      if (state->old_screen[j][i] != state->screen[j][i]) {
-        printf("\e[%d;%dH", j + 1, i + 1);
-        switch (c) {
-        case '\n':
-          printf("\n");
-          break;
-        case 'X':
-          printf("\e[48;2;51;51;81m\e[38;2;91;91;91mX");
-          break;
-        case '.':
-          printf("\e[48;2;80;76;60m\e[38;2;51;0;25m ");
-          break;
-        case ' ':
-          printf("\e[48;2;10;10;40m ");
-          break;
-        case 'O':
-          printf("\e[48;2;10;10;40m\e[38;2;202;198;194mO");
-          break;
-        case 'o':
-          printf("\e[48;2;10;10;40m\e[38;2;202;198;194mo");
-          break;
-        case '@':
-          printf("\e[48;2;10;10;40m\e[38;2;235;51;51m@");
-          break;
-        case 'E':
-          printf("\e[48;2;10;10;40m\e[38;2;251;251;15mE");
-        default:
-          break;
-        }
-      }
+      tb_set_cell(i, j, ch, fg, bg);
     }
   }
-  fflush(stdout);
+  tb_present();
 }
 
 // Get the player co-ordinates from the Current state
@@ -350,7 +318,7 @@ void load_level(GameState *state, char* level) {
 
 // Prints the end message with result
 void print_end_message(GameState *state) {
-  printf("\e[%d;%dH", MAX_Y + 2, 1);
+  printf("\e[2J\e[0;0H");
   if (state->dead) {
     printf("You died! Better luck next time!");
   }

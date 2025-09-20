@@ -13,10 +13,9 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Termbox initalization failed\n");
     return 1;
   }
+  tb_set_output_mode(TB_OUTPUT_TRUECOLOR);
 
-  GameState state = {.pos_x = 5, .pos_y = 5};
-
-  printf("\e[2J");
+  GameState state = {0};
   load_level(&state, level);
 
   while (true) {
@@ -37,15 +36,16 @@ int main(int argc, char *argv[]) {
     }
     
     update(&state);
+    render(&state);
+
     if (state.won || state.dead) {
-      print_end_message(&state);
       break;
     }
-
-    render(&state);
 
     memcpy(state.old_screen, state.screen, sizeof(state.screen));
   }
 
   tb_shutdown();
+
+  print_end_message(&state);
 }
