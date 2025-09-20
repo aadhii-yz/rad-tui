@@ -27,8 +27,7 @@ typedef struct {
   char screen[MAX_Y][MAX_X];
 } GameState;
 
-int read_key(char *buf, int k);
-void read_input(GameState *state);
+void handle_input(GameState *state, struct tb_event *ev);
 void handle_player(GameState *state);
 void handle_rocks_gems(GameState *state, int x, int y);
 void handle_falling_rocks_gems(GameState *state, int x, int y);

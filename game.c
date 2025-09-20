@@ -4,37 +4,63 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+
+#define TB_IMPL
+#include "termbox2.h"
+
 #include "game.h"
 
-// Handle key press
-int read_key(char *buf, int k) {
-  if (buf[k] == '\033' && buf[k + 1] == '[') {
-    switch (buf[k + 2]) {
-    case 'A':
-      return 1; // UP
-    case 'B':
-      return 2; // DOWN
-    case 'C':
-      return 3; // RIGHT
-    case 'D':
-      return 4; // LEFT
+// // Handle key press
+// int read_key(char *buf, int k) {
+//   if (buf[k] == '\033' && buf[k + 1] == '[') {
+//     switch (buf[k + 2]) {
+//     case 'A':
+//       return 1; // UP
+//     case 'B':
+//       return 2; // DOWN
+//     case 'C':
+//       return 3; // RIGHT
+//     case 'D':
+//       return 4; // LEFT
+//     }
+//   }
+//   return 0;
+// }
+
+// // Read key press
+// void read_input(GameState *state) {
+//   char buf[4096];
+//   int n = read(STDIN_FILENO, buf, sizeof(buf));
+//   int final_key = 0;
+//   for (int k = 0; k <= n - 3; k += 3) {
+//     int key = read_key(buf, k);
+//     if (key == 0)
+//       continue;
+//     final_key = key;
+//   }
+//   state->key = final_key;
+// }
+
+// Handle keyboard inputs
+void handle_input(GameState *state, struct tb_event *ev) {
+  state->key = 0;
+
+  if (ev->type == TB_EVENT_KEY) {
+    switch (ev->key) {
+      case TB_KEY_ARROW_UP:
+        state->key = 1;
+        break;
+      case TB_KEY_ARROW_DOWN:
+        state->key = 2;
+        break;
+      case TB_KEY_ARROW_RIGHT:
+        state->key = 3;
+        break;
+      case TB_KEY_ARROW_LEFT:
+        state->key = 4;
+        break;
     }
   }
-  return 0;
-}
-
-// Read key press
-void read_input(GameState *state) {
-  char buf[4096];
-  int n = read(STDIN_FILENO, buf, sizeof(buf));
-  int final_key = 0;
-  for (int k = 0; k <= n - 3; k += 3) {
-    int key = read_key(buf, k);
-    if (key == 0)
-      continue;
-    final_key = key;
-  }
-  state->key = final_key;
 }
 
 // Update game state based on key perss

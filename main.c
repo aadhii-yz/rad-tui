@@ -1,8 +1,6 @@
 #include "game.c"
+#include "game.h"
 #include <stdio.h>
-
-#define TB_IMPL
-#include "termbox2.h"
 
 int main(int argc, char *argv[]) {
   char *level = get_level(argc, argv);
@@ -35,9 +33,9 @@ int main(int argc, char *argv[]) {
           break;
         }
       }
+      handle_input(&state, &ev);
     }
-
-    read_input(&state);
+    
     update(&state);
     if (state.won || state.dead) {
       print_end_message(&state);
