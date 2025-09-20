@@ -2,43 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include "game.h"
-
-// To save the terminal state
-static struct termios old_termios, new_termios;
-
-// Resets the terminal
-void reset_terminal() {
-  printf("\e[m");
-  printf("\e[?25h");
-  printf("\e[%d;%dH\n", MAX_Y + 3, MAX_X);
-  fflush(stdout);
-  tcsetattr(STDIN_FILENO, TCSANOW, &old_termios); // resets the old terminal attributes
-}
-
-// Configure the terminal for game
-// Modify the terminal attributes
-void configure_terminal() {
-  tcgetattr(STDIN_FILENO, &old_termios);
-  new_termios = old_termios;
-
-  new_termios.c_lflag &= ~(ICANON | ECHO);
-  new_termios.c_cc[VMIN] = 0;
-  new_termios.c_cc[VTIME] = 0;
-
-  tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
-
-  printf("\e[?25l");
-  atexit(reset_terminal);
-}
-
-// Game loop's control variable
-static int exit_loop;
-
-// Handling interrupt and terminate game loop
-void signal_handler(__attribute__((unused)) int signum) { exit_loop = 1; }
 
 // Handle key press
 int read_key(char *buf, int k) {

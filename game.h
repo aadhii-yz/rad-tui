@@ -25,12 +25,11 @@ typedef struct {
   int gems_collected;
   int dead;
   int won;
+  bool end;
   char old_screen[MAX_Y][MAX_X];
   char screen[MAX_Y][MAX_X];
 } GameState;
 
-void reset_terminal();
-void configure_terminal();
 int read_key(char *buf, int k);
 void read_input(GameState *state);
 void handle_player(GameState *state);

@@ -1,6 +1,8 @@
-#include <signal.h>
 #include <time.h>
 #include "game.c"
+
+#define TB_IMPL
+#include "termbox2.h"
 
 int main(int argc, char* argv[]) {
   char* level = get_level(argc, argv);
@@ -9,9 +11,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  configure_terminal();
-
-  signal(SIGINT, signal_handler);
+  tb_init();
 
   struct timespec req = {};
   struct timespec rem = {};
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 
   clock_t start, end;
 
-  while (!exit_loop) {
+  while (!state.end) {
     start = clock();
 
     read_input(&state);
@@ -47,5 +47,7 @@ int main(int argc, char* argv[]) {
     req.tv_nsec = (SPEED - time_taken) * 1000000000;
     nanosleep(&req, &rem);
   }
+
+  tb_shutdown();
 }
 
