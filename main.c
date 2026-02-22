@@ -17,12 +17,17 @@ int main(int argc, char *argv[]) {
 
   GameState state = {0};
   load_level(&state, level);
+  state.width = tb_width();
+  state.height = tb_height();
 
   while (true) {
     struct tb_event ev;
     int ev_type = tb_peek_event(&ev, 100);
     if (ev_type == TB_ERR_NO_EVENT) {
       state.key = 0; // no input, just timeout.
+    } else if (ev_type == TB_EVENT_RESIZE) {
+      state.width = ev.w;
+      state.height = ev.h;
     } else if (ev_type < 0) {
       break; // Error
     } else {

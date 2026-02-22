@@ -242,6 +242,8 @@ void update(GameState *state) {
 void render(GameState *state) {
   tb_set_clear_attrs(TB_DEFAULT, 0x0a0a28);  
   tb_clear();
+  int dx = (state->width - MAX_X) / 2;
+  int dy = (state->height - MAX_Y) / 2;
   
   for (int j = 0; j < MAX_Y; ++j) {
     for (int i = 0; i < MAX_X; ++i) {
@@ -279,7 +281,7 @@ void render(GameState *state) {
       default:
         continue;
       }
-      tb_set_cell(i, j, ch, fg, bg);
+      tb_set_cell(dx + i, dy + j, ch, fg, bg);
     }
   }
   tb_present();

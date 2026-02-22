@@ -23,6 +23,7 @@ typedef struct {
   int gems_collected;
   int dead;
   int won;
+  int width, height;
   char old_screen[MAX_Y][MAX_X];
   char screen[MAX_Y][MAX_X];
 } GameState;
